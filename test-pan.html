@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Button Highlight on Pan</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f9f9f9;
+      touch-action: none; /* Prevent default scrolling */
+    }
+
+    button {
+      position: relative;
+      width: 200px;
+      height: 80px;
+      font-size: 18px;
+      border: none;
+      border-radius: 12px;
+      background-color: #eee;
+      overflow: hidden;
+    }
+
+    canvas.highlight {
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <button id="myButton">
+    Touch & Move Me
+    <canvas class="highlight"></canvas>
+  </button>
+
+  <script>
+    const button = document.getElementById('myButton');
+    const canvas = button.querySelector('canvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      canvas.width = button.clientWidth;
+      canvas.height = button.clientHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    let isTouching = false;
+
+    button.addEventListener('touchstart', (e) => {
+      isTouching = true;
+    });
+
+    button.addEventListener('touchend', () => {
+      isTouching = false;
+    });
+
+    button.addEventListener('touchmove', (e) => {
+      if (!isTouching) return;
+
+      const rect = button.getBoundingClientRect();
+      const touch = e.touches[0];
+      const x = touch.clientX - rect.left;
+      const y = touch.clientY - rect.top;
+
+      const radius = 40;
+
+      const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
+      gradient.addColorStop(0, 'rgba(255, 255, 0, 0.4)');
+      gradient.addColorStop(1, 'rgba(255, 255, 0, 0)');
+
+      ctx.fillStyle = gradient;
+      ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+
+      e.preventDefault();
+    }, { passive: false });
+  </script>
+
+</body>
+</html>
